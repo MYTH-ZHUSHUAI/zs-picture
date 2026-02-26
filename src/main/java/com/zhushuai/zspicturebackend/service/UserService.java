@@ -1,10 +1,15 @@
 package com.zhushuai.zspicturebackend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhushuai.zspicturebackend.model.dto.user.UserAddRequest;
+import com.zhushuai.zspicturebackend.model.dto.user.UserQueryRequest;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhushuai.zspicturebackend.model.vo.LoginUserVO;
+import com.zhushuai.zspicturebackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author zhushuai
@@ -49,9 +54,24 @@ public interface UserService extends IService<User> {
      */
     LoginUserVO getLoginUserVO(User user);
 
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param user
+     * @return
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 获取脱敏的用户信息列表
+     *
+     */
+    List<UserVO> getUserVOList(List<User> userList);
+
 
     /**
      * 服务器内获取当前登录用户
+     *
      * @param request
      * @return
      */
@@ -59,9 +79,28 @@ public interface UserService extends IService<User> {
 
     /**
      * 退出登录
+     *
      * @param request
      * @return
      */
     boolean userLogout(HttpServletRequest request);
+
+
+    /**
+     * 获取查询条件
+     *
+     * @param userQueryRequest
+     * @return
+     */
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+
+    /**
+     * 管理员新增用户
+     *
+     * @param userAddRequest 前端传入的参数
+     * @return
+     */
+    boolean addUser(UserAddRequest userAddRequest);
 
 }

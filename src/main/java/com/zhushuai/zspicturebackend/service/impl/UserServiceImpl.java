@@ -1,14 +1,18 @@
 package com.zhushuai.zspicturebackend.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhushuai.zspicturebackend.constant.UserConstant;
 import com.zhushuai.zspicturebackend.exception.BusinessException;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
 import com.zhushuai.zspicturebackend.exception.ThrowUtils;
+import com.zhushuai.zspicturebackend.model.dto.user.UserAddRequest;
+import com.zhushuai.zspicturebackend.model.dto.user.UserQueryRequest;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.enums.UserRoleEnum;
 import com.zhushuai.zspicturebackend.model.vo.LoginUserVO;
+import com.zhushuai.zspicturebackend.model.vo.UserVO;
 import com.zhushuai.zspicturebackend.service.UserService;
 import com.zhushuai.zspicturebackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author zhushuai
@@ -137,6 +144,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 获取脱敏的用户信息
+     *
+     * @param user
+     * @return
+     */
+
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
+
+    }
+
+    /**
+     * 获取脱敏的用户信息列表
+     *
+     * @param userList
+     * @return
+     */
+    @Override
+    public List<UserVO> getUserVOList(List<User> userList) {
+        if (CollUtil.isEmpty(userList)) {
+            return Collections.emptyList();
+        }
+
+        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
+    }
+
+    /**
      * 通过一次http请求获取当前登录用户
      *
      * @param request
@@ -178,6 +219,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
 
     }
+
+    @Override
+    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+
+        Long id = userQueryRequest.getId();
+        String userAccount = userQueryRequest.getUserAccount();
+        String userName = userQueryRequest.getUserName();
+        String userAvatar = userQueryRequest.getUserAvatar();
+        String userProfile = userQueryRequest.getUserProfile();
+        int current = userQueryRequest.getCurrent();
+        int pageSize = userQueryRequest.getPageSize();
+        String sortField = userQueryRequest.getSortField();
+        String sortOrder = userQueryRequest.getSortOrder();
+
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq(id != null, "id", id);
+        userQueryWrapper.eq(StringUtils.isNotBlank(userAccount), "userAccount", userAccount);
+        userQueryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
+        userQueryWrapper.like(StringUtils.isNotBlank(userAvatar), "userAvatar", userAvatar);
+        userQueryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
+        userQueryWrapper.orderBy(StringUtils.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+
+        return userQueryWrapper;
+    }
+
+    /**
+     * 管理员新增用户
+     *
+     * @param userAddRequest 前端传入的参数
+     * @return
+     */
+    @Override
+    public boolean addUser(UserAddRequest userAddRequest) {
+
+        // 将前端发来的请求转为实体类
+        User user = new User();
+        BeanUtils.copyProperties(userAddRequest, user);
+        user.setUserPassword(this.getEncryptedPassword(user.getUserAccount() + UserConstant.USER_DEFAULT_PASSWORD));
+
+        return this.save(user);
+    }
+
+
 }
 
 

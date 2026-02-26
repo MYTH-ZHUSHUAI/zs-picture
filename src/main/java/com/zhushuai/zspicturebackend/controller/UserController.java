@@ -4,14 +4,16 @@ package com.zhushuai.zspicturebackend.controller;
 import com.zhushuai.zspicturebackend.annotation.AuthCheck;
 import com.zhushuai.zspicturebackend.common.BaseResponse;
 import com.zhushuai.zspicturebackend.common.ResultUtils;
+import com.zhushuai.zspicturebackend.constant.UserConstant;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
 import com.zhushuai.zspicturebackend.exception.ThrowUtils;
-import com.zhushuai.zspicturebackend.model.dto.UserLoginRequest;
-import com.zhushuai.zspicturebackend.model.dto.UserRegisterRequest;
+import com.zhushuai.zspicturebackend.model.dto.user.UserAddRequest;
+import com.zhushuai.zspicturebackend.model.dto.user.UserLoginRequest;
+import com.zhushuai.zspicturebackend.model.dto.user.UserRegisterRequest;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.vo.LoginUserVO;
 import com.zhushuai.zspicturebackend.service.UserService;
-import org.springframework.http.HttpRequest;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -37,7 +39,6 @@ public class UserController {
         String checkPassword = userRegisterRequest.getCheckPassword();
 
         long res = userService.userRegister(userAccount, userPassword, checkPassword);
-
 
         return ResultUtils.success(res);
     }
@@ -82,6 +83,20 @@ public class UserController {
 
         boolean res = userService.userLogout(request);
         return ResultUtils.success(res);
+    }
+
+
+    /**
+     * 创建用户
+     */
+    @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.USER_ROLE_ADMIN)
+    public BaseResponse<Boolean> userAdd(@RequestBody UserAddRequest userAddRequest) {
+        ThrowUtils.throwIf(userAddRequest == null, ErrorCode.PARAMS_ERROR, "参数为空");
+
+        boolean saved = userService.addUser(userAddRequest);
+        ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "创建失败");
+        return ResultUtils.success(true);
     }
 
 }
