@@ -85,14 +85,18 @@ knife4j:
         api-rule-resources:
           - com.zhushuai.zspicturebackend.controller
 ## 对象存储配置（需要从腾讯云获取）
-#cos:
-#  client:
-#    host: xxx
-#    secretId: xxx
-#    secretKey: xxx
-#    region: xxx
-#    bucket: xxx
+cos:
+  client:
+    host: xxx
+    secretId: xxx
+    secretKey: xxx
+    region: xxx
+    bucket: xxx
 
 ## 阿里云 AI 配置
-#aliYunAi:
-#  apiKey: xxx
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    accessKeyId: ${OSS_ACCESS_KEY_ID}
+    accessKeySecret: ${OSS_ACCESS_KEY_SECRET}
+    bucketName: zszs-picture

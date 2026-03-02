@@ -103,4 +103,13 @@ public interface UserService extends IService<User> {
      */
     boolean addUser(UserAddRequest userAddRequest);
 
+
+    /**
+     * 判断是否为管理员
+     *
+     * @param request
+     * @return
+     */
+    boolean isAdmin(User user);
+
 }

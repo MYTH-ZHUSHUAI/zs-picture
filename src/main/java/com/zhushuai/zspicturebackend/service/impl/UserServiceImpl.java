@@ -231,8 +231,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userName = userQueryRequest.getUserName();
         String userAvatar = userQueryRequest.getUserAvatar();
         String userProfile = userQueryRequest.getUserProfile();
-        int current = userQueryRequest.getCurrent();
-        int pageSize = userQueryRequest.getPageSize();
+        long currentPage = userQueryRequest.getCurrentPage();
+        long pageSize = userQueryRequest.getPageSize();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
 
@@ -264,7 +264,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return this.save(user);
     }
 
-
+    /**
+     * 判断是否为管理员
+     *
+     * @param user 用户
+     * @return
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        if (user == null) {
+            return false;
+        }
+        return user.getUserRole().equals(UserConstant.USER_ROLE_ADMIN);
+    }
 }
 
 
