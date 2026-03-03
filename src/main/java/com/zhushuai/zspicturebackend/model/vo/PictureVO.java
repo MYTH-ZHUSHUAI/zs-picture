@@ -102,7 +102,7 @@ public class PictureVO implements Serializable {
     /**
      * 对象转封装类
      */
-    public static PictureVO objToVo(Picture picture) {
+    public static PictureVO objToVo(Picture picture, UserVO userVO) {
         if (picture == null) {
             return null;
         }
@@ -110,6 +110,7 @@ public class PictureVO implements Serializable {
         BeanUtils.copyProperties(picture, pictureVO);
         // 类型不同，需要转换
         pictureVO.setTags(JSONUtil.toList(picture.getTags(), String.class));
+        pictureVO.setUser(userVO);
         return pictureVO;
     }
 }

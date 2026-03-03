@@ -11,9 +11,7 @@ import java.util.Date;
 /**
  * 用户
  *
- * @TableName user
  */
-@TableName(value = "user")
 @Data
 public class UserUpdateRequest {
     /**

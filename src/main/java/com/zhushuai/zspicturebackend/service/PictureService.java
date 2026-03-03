@@ -1,5 +1,9 @@
 package com.zhushuai.zspicturebackend.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhushuai.zspicturebackend.model.dto.picture.PictureListReq;
+import com.zhushuai.zspicturebackend.model.dto.picture.PictureQueryReq;
+import com.zhushuai.zspicturebackend.model.dto.picture.PictureUpdateReq;
 import com.zhushuai.zspicturebackend.model.dto.picture.PictureUploadReq;
 import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -8,6 +12,7 @@ import com.zhushuai.zspicturebackend.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author zhushuai
@@ -28,4 +33,31 @@ public interface PictureService extends IService<Picture> {
                             PictureUploadReq pictureUploadReq,
                             User user) throws IOException, InterruptedException;
 
+
+    /**
+     * 修改图片信息
+     *
+     * @param pictureUpdateReq 图片修改请求
+     * @param user             本次请求的用户
+     * @return PictureVO
+     */
+    PictureVO updatePicture(PictureUpdateReq pictureUpdateReq, User user);
+
+
+    /**
+     * 根据条件查询图片
+     *
+     * @param pictureQueryReq
+     * @return
+     */
+    PictureVO queryPicture(PictureQueryReq pictureQueryReq, User user);
+
+
+    /**
+     * 根据用户id获取其全部图片
+     *
+     * @param pictureListReq
+     * @return
+     */
+    Page<PictureVO> getPictureVOPage(PictureListReq pictureListReq);
 }

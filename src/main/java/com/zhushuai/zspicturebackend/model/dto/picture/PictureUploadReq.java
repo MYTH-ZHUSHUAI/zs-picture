@@ -2,9 +2,8 @@ package com.zhushuai.zspicturebackend.model.dto.picture;
 
 
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 public class PictureUploadReq {
@@ -25,7 +24,7 @@ public class PictureUploadReq {
     private String pictureCategory;
 
     /**
-     * 标签（JSON 数组）
+     * 标签
      */
-    private String pictureTags;
+    private List<String> pictureTags;
 }
