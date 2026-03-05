@@ -70,8 +70,12 @@ public interface PictureService extends IService<Picture> {
     PictureVO uploadPictureByUrl(PictureUrlUploadReq pictureUrlUploadReq, User user);
 
 
-
-
+    /**
+     * 根据id查询图片
+     *
+     * @param pictureQueryReq
+     */
+    PictureVO queryPictureById(PictureQueryReq pictureQueryReq);
 
 
 

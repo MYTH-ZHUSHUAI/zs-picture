@@ -275,6 +275,17 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
         return null;
     }
+
+    /**
+     * 通过id查询图片
+     *
+     * @param pictureQueryReq
+     * @return
+     */
+    @Override
+    public PictureVO queryPictureById(PictureQueryReq pictureQueryReq) {
+        return null;
+    }
 }
 
 
