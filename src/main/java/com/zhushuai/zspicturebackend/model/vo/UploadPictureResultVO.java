@@ -2,8 +2,12 @@ package com.zhushuai.zspicturebackend.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UploadPictureResultVO {
 
@@ -18,9 +22,14 @@ public class UploadPictureResultVO {
     private String thumbnailUrl;
 
     /**
-     * 文件名
+     * 文件key
      */
     private String key;
+
+    /**
+     * 图片名称
+     */
+    private String name;
 
 
     /**

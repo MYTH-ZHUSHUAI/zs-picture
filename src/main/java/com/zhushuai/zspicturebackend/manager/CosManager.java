@@ -73,7 +73,8 @@ public class CosManager {
     }
 
     /**
-     * 图片上传（带缩略图）
+     * 上传图片
+     *
      */
     public UploadPictureResultVO uploadImage(MultipartFile file) throws IOException, InterruptedException {
 
@@ -162,18 +163,15 @@ public class CosManager {
 //
 //            String thumbnailUrl = cosClientConfig.getHost() + "/" + thumbnailKey;
 
-        return new UploadPictureResultVO(
-                url,
-                null,
-                key,
-                (long) fileBytes.length,
-                width,
-                height,
-                scale,
-                format
-        );
-
-
+        return UploadPictureResultVO.builder()
+                .url(url)
+                .key(key)
+                .picSize(file.getSize())
+                .picWidth(width)
+                .picHeight(height)
+                .picScale(scale)
+                .picFormat(format)
+                .build();
     }
 
     /**

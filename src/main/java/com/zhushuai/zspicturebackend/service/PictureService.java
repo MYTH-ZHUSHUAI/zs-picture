@@ -1,10 +1,7 @@
 package com.zhushuai.zspicturebackend.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureListReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureQueryReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureUpdateReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureUploadReq;
+import com.zhushuai.zspicturebackend.model.dto.picture.*;
 import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhushuai.zspicturebackend.model.entity.User;
@@ -31,7 +28,7 @@ public interface PictureService extends IService<Picture> {
      */
     PictureVO uploadPicture(MultipartFile file,
                             PictureUploadReq pictureUploadReq,
-                            User user) throws IOException, InterruptedException;
+                            User user);
 
 
     /**
@@ -60,4 +57,14 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     Page<PictureVO> getPictureVOPage(PictureListReq pictureListReq);
+
+
+    /**
+     * 根据url上传图片
+     *
+     * @param pictureUrlUploadReq 上传请求
+     * @param user                用户
+     * @return
+     */
+    PictureVO uploadPictureByUrl(PictureUrlUploadReq pictureUrlUploadReq, User user);
 }

@@ -42,6 +42,14 @@
             <scope>test</scope>
         </dependency>
 
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+
         <!--接口文档-->
         <dependency>
             <groupId>org.springdoc</groupId>

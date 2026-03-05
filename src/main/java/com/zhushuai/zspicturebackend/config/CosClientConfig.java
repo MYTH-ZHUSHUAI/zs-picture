@@ -5,10 +5,15 @@ import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.region.Region;
+import com.qcloud.cos.transfer.TransferManager;
+import com.qcloud.cos.transfer.TransferManagerConfiguration;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 腾讯云对象存储客户端
@@ -56,5 +61,25 @@ public class CosClientConfig {
         // 生成cos客户端
         return new COSClient(cred, clientConfig);
 
+    }
+
+    @Bean(destroyMethod = "shutdownNow")
+    public TransferManager transferManager(COSClient cosClient) {
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(16);
+
+        TransferManager transferManager = new TransferManager(cosClient, threadPool);
+
+        TransferManagerConfiguration configuration = new TransferManagerConfiguration();
+
+        // 5MB 分片阈值
+        configuration.setMultipartUploadThreshold(5 * 1024 * 1024);
+
+        // 每片最小 5MB
+        configuration.setMinimumUploadPartSize(5 * 1024 * 1024);
+
+        transferManager.setConfiguration(configuration);
+
+        return transferManager;
     }
 }

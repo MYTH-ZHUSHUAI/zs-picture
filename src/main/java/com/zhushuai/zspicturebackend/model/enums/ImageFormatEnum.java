@@ -18,10 +18,6 @@ public enum ImageFormatEnum {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public static boolean isValid(String format) {
         if (format == null) {
             return false;

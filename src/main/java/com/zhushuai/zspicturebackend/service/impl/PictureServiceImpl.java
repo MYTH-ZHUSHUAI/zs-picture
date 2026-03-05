@@ -12,10 +12,8 @@ import com.zhushuai.zspicturebackend.exception.BusinessException;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
 import com.zhushuai.zspicturebackend.exception.ThrowUtils;
 import com.zhushuai.zspicturebackend.manager.CosManager;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureListReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureQueryReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureUpdateReq;
-import com.zhushuai.zspicturebackend.model.dto.picture.PictureUploadReq;
+import com.zhushuai.zspicturebackend.manager.ImageUploadTemplate;
+import com.zhushuai.zspicturebackend.model.dto.picture.*;
 import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.vo.PictureVO;
@@ -43,60 +41,73 @@ import java.util.stream.Collectors;
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
     @Resource
-    private CosManager cosManager;
+    private UserService userService;
 
     @Resource
-    private UserService userService;
+    private ImageUploadTemplate ImageUploadTemplate;
 
 
     /**
      * 上传图片
      *
-     * @param pictureUploadReq
-     * @param user
+     * @param pictureUploadReq 图片请求
+     * @param user 用户
      * @return
      */
     @Override
     public PictureVO uploadPicture(MultipartFile file,
                                    PictureUploadReq pictureUploadReq,
-                                   User user) throws IOException, InterruptedException {
+                                   User user) {
         ThrowUtils.throwIf(file == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
 
-        // 上传图片，获取图片信息
-        UploadPictureResultVO uploadPictureResultVO = cosManager.uploadImage(file);
-
-        String pictureName = pictureUploadReq.getPictureName();
-        String pictureIntroduction = pictureUploadReq.getPictureIntroduction();
-        String pictureCategory = pictureUploadReq.getPictureCategory();
-        List<String> pictureTags = pictureUploadReq.getPictureTags();
+        // 从 uploadPictureResultVO 和 pictureUploadReq 构建 picture
 
 
-        // 构造picture对象
-        Picture picture = new Picture();
-        BeanUtils.copyProperties(uploadPictureResultVO, picture);
-        picture.setName(pictureName);
-        picture.setIntroduction(pictureIntroduction);
-        picture.setCategory(pictureCategory);
-        picture.setTags(JSONUtil.toJsonStr(pictureTags));
-        picture.setUserId(user.getId());
+        try {
+            // 上传图片，获取图片信息
+            UploadPictureResultVO uploadPictureResultVO = ImageUploadTemplate.upload(
+                    file.getBytes(),
+                    file.getOriginalFilename(),
+                    file.getContentType()
+            );
 
-        // 将图片保存到数据库中
-        boolean saved = this.save(picture);
-        ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "图片上传失败");
-        picture.setCreateTime(new Date());
+            // 获取用户请求的参数
+            String pictureName = pictureUploadReq.getPictureName();
+            String pictureIntroduction = pictureUploadReq.getPictureIntroduction();
+            String pictureCategory = pictureUploadReq.getPictureCategory();
+            List<String> pictureTags = pictureUploadReq.getPictureTags();
 
 
-        PictureVO pictureVO = PictureVO.objToVo(picture, userService.getUserVO(user));
-        pictureVO.setUser(userService.getUserVO(user));
+            // 构造picture对象
+            Picture picture = new Picture();
+            BeanUtils.copyProperties(uploadPictureResultVO, picture);
+            picture.setName(pictureName);
+            picture.setIntroduction(pictureIntroduction);
+            picture.setCategory(pictureCategory);
+            picture.setTags(JSONUtil.toJsonStr(pictureTags));
+            picture.setUserId(user.getId());
 
-        return pictureVO;
+            // 将图片保存到数据库中
+            boolean saved = this.save(picture);
+            ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "图片上传失败");
+            picture.setCreateTime(new Date());
+
+
+            PictureVO pictureVO = PictureVO.objToVo(picture, userService.getUserVO(user));
+            pictureVO.setUser(userService.getUserVO(user));
+
+            return pictureVO;
+
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片上传失败");
+        }
     }
 
     /**
      * 用户更新图片信息
      *
-     * @param pictureUpdateReq
-     * @param user
+     * @param pictureUpdateReq 请求封装类
+     * @param user             用户
      * @return
      */
     @Override
@@ -122,6 +133,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
     /**
      * 图片搜索
+     * TODO 图片搜索
      *
      * @param pictureQueryReq
      * @param user
@@ -192,8 +204,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
     /**
      * 获取图片列表
+     * 管理员会获得所有图片
      *
-     * @param pictureListReq
+     * @param pictureListReq 图片列表请求封装类
      * @return
      */
     @Override
@@ -245,7 +258,28 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     }
 
 
+    /**
+     * 通过url上传图片
+     *
+     * @param pictureUrlUploadReq 上传请求
+     * @param user                用户
+     * @return
+     */
+    @Override
+    public PictureVO uploadPictureByUrl(PictureUrlUploadReq pictureUrlUploadReq, User user) {
+
+        // 文件的url
+        String url = pictureUrlUploadReq.getUrl();
+        String pictureName = pictureUrlUploadReq.getPictureName();
+        String pictureIntroduction = pictureUrlUploadReq.getPictureIntroduction();
+        String pictureCategory = pictureUrlUploadReq.getPictureCategory();
+        List<String> pictureTags = pictureUrlUploadReq.getPictureTags();
+
+        return null;
+    }
 }
+
+
 
 
 

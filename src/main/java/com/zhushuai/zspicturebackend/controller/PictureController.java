@@ -22,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/file")
+@RequestMapping("/picture")
 public class PictureController {
 
 
@@ -52,8 +52,7 @@ public class PictureController {
             @RequestParam(required = false) String pictureIntroduction,
             @RequestParam(required = false) String pictureCategory,
             @RequestParam(required = false) List<String> pictureTags,
-            HttpServletRequest request)
-            throws IOException, InterruptedException {
+            HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
 
