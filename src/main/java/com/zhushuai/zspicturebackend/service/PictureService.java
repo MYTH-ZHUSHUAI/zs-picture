@@ -66,5 +66,13 @@ public interface PictureService extends IService<Picture> {
      * @param user                用户
      * @return
      */
+    @Deprecated
     PictureVO uploadPictureByUrl(PictureUrlUploadReq pictureUrlUploadReq, User user);
+
+
+
+
+
+
+
 }

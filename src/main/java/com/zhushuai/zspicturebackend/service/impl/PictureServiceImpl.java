@@ -11,8 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhushuai.zspicturebackend.exception.BusinessException;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
 import com.zhushuai.zspicturebackend.exception.ThrowUtils;
-import com.zhushuai.zspicturebackend.manager.CosManager;
-import com.zhushuai.zspicturebackend.manager.ImageUploadTemplate;
+import com.zhushuai.zspicturebackend.manager.ImageUploadManager;
 import com.zhushuai.zspicturebackend.model.dto.picture.*;
 import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.zhushuai.zspicturebackend.model.entity.User;
@@ -24,10 +23,9 @@ import com.zhushuai.zspicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import cn.hutool.crypto.digest.DigestUtil;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,59 +42,59 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private UserService userService;
 
     @Resource
-    private ImageUploadTemplate ImageUploadTemplate;
+    private ImageUploadManager imageUploadManger;
 
 
     /**
      * 上传图片
      *
      * @param pictureUploadReq 图片请求
-     * @param user 用户
+     * @param user             用户
      * @return
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile file,
-                                   PictureUploadReq pictureUploadReq,
-                                   User user) {
+    public PictureVO uploadPicture(MultipartFile file, PictureUploadReq pictureUploadReq, User user) {
+
         ThrowUtils.throwIf(file == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
 
-        // 从 uploadPictureResultVO 和 pictureUploadReq 构建 picture
-
-
         try {
-            // 上传图片，获取图片信息
-            UploadPictureResultVO uploadPictureResultVO = ImageUploadTemplate.upload(
-                    file.getBytes(),
+
+            byte[] bytes = file.getBytes();
+
+            // ===== 1️⃣ 计算 MD5 =====
+            String md5 = DigestUtil.md5Hex(bytes);
+
+            // ===== 2️⃣ 查询是否已存在 =====
+            Picture existPicture = this.lambdaQuery().eq(Picture::getMd5, md5).one();
+
+            if (existPicture != null) {
+                // 秒传成功，直接返回
+                return PictureVO.objToVo(existPicture, userService.getUserVO(user)
+                );
+            }
+
+            // ===== 3️⃣ 不存在才真正上传 =====
+            UploadPictureResultVO uploadResult = imageUploadManger.upload(
+                    bytes,
                     file.getOriginalFilename(),
                     file.getContentType()
             );
 
-            // 获取用户请求的参数
-            String pictureName = pictureUploadReq.getPictureName();
-            String pictureIntroduction = pictureUploadReq.getPictureIntroduction();
-            String pictureCategory = pictureUploadReq.getPictureCategory();
-            List<String> pictureTags = pictureUploadReq.getPictureTags();
-
-
-            // 构造picture对象
+            // ===== 4️⃣ 构造 Picture =====
             Picture picture = new Picture();
-            BeanUtils.copyProperties(uploadPictureResultVO, picture);
-            picture.setName(pictureName);
-            picture.setIntroduction(pictureIntroduction);
-            picture.setCategory(pictureCategory);
-            picture.setTags(JSONUtil.toJsonStr(pictureTags));
+            BeanUtils.copyProperties(uploadResult, picture);
+
+            picture.setMd5(md5);  // 保存 md5
+            picture.setName(pictureUploadReq.getPictureName());
+            picture.setIntroduction(pictureUploadReq.getPictureIntroduction());
+            picture.setCategory(pictureUploadReq.getPictureCategory());
+            picture.setTags(JSONUtil.toJsonStr(pictureUploadReq.getPictureTags()));
             picture.setUserId(user.getId());
 
-            // 将图片保存到数据库中
             boolean saved = this.save(picture);
             ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "图片上传失败");
-            picture.setCreateTime(new Date());
 
-
-            PictureVO pictureVO = PictureVO.objToVo(picture, userService.getUserVO(user));
-            pictureVO.setUser(userService.getUserVO(user));
-
-            return pictureVO;
+            return PictureVO.objToVo(picture, userService.getUserVO(user));
 
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片上传失败");

@@ -29,6 +29,11 @@ public class Picture {
     private String url;
 
     /**
+     * 缩略图 url
+     */
+    private String thumbnailUrl;
+
+    /**
      * 图片名称
      */
     private String name;
@@ -98,4 +103,9 @@ public class Picture {
      */
     @TableLogic
     private Integer isDelete;
+
+    /**
+     * 图片md5
+     */
+    private String md5;
 }
