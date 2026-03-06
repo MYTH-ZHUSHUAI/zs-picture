@@ -14,9 +14,9 @@ import java.util.Date;
 public class SpaceVO {
 
     /**
-     * id
+     * 空间 id
      */
-    private Long id;
+    private Long spaceId;
 
     /**
      * 空间名称

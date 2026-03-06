@@ -12,26 +12,21 @@ import lombok.Data;
 /**
  * 图片
  *
- * @TableName picture
+ * @TableName user_picture
  */
-@TableName(value = "picture")
+@TableName(value = "user_picture")
 @Data
-public class Picture {
+public class UserPicture {
     /**
-     * 图片 id
+     * 用户图片关联 id
      */
     @TableId(type = IdType.ASSIGN_ID)
-    private Long pictureId;
+    private Long userPictureId;
 
     /**
      * 图片 url
      */
     private String url;
-
-    /**
-     * 缩略图 url
-     */
-    private String thumbnailUrl;
 
     /**
      * 图片名称
@@ -105,7 +100,22 @@ public class Picture {
     private Integer isDelete;
 
     /**
-     * 图片md5
+     * 是否公开
+     */
+    private Integer isOpen;
+
+    /**
+     * 缩略图 url
+     */
+    private String thumbnailUrl;
+
+    /**
+     * 图片 MD5 值
      */
     private String md5;
+
+    /**
+     * 空间 id（为0表示公共空间）
+     */
+    private Long spaceId;
 }

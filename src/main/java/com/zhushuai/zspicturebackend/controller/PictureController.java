@@ -7,10 +7,13 @@ import com.zhushuai.zspicturebackend.common.ResultUtils;
 import com.zhushuai.zspicturebackend.model.dto.picture.PictureListReq;
 import com.zhushuai.zspicturebackend.model.dto.picture.PictureUpdateReq;
 import com.zhushuai.zspicturebackend.model.dto.picture.PictureUploadReq;
+import com.zhushuai.zspicturebackend.model.dto.picture.PictureUploadToUserSpaceReq;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.vo.PictureVO;
 import com.zhushuai.zspicturebackend.service.PictureService;
+import com.zhushuai.zspicturebackend.service.UserPictureService;
 import com.zhushuai.zspicturebackend.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +35,9 @@ public class PictureController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private UserPictureService userPictureService;
+
     /**
      * 上传图片
      *
@@ -46,12 +52,13 @@ public class PictureController {
      * @throws InterruptedException
      */
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    @Operation(summary = "上传到公共空间", description = "将图片上传到公共图库，支持秒传功能")
     public BaseResponse<PictureVO> uploadPicture(
             @RequestPart("file") MultipartFile file,
             @RequestParam String pictureName,
             @RequestParam(required = false) String pictureIntroduction,
             @RequestParam(required = false) String pictureCategory,
-            @RequestParam(required = false) List<String> pictureTags,
+            @RequestParam(required = false) String pictureTags,
             HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
@@ -75,6 +82,7 @@ public class PictureController {
      * @return
      */
     @PostMapping("/update")
+    @Operation(summary = "公共空间图片更新请求")
     public BaseResponse<PictureVO> uodatePicture(@RequestBody PictureUpdateReq pictureUpdateReq,
                                                  HttpServletRequest request) {
 
@@ -88,15 +96,56 @@ public class PictureController {
 
     /**
      * 用户获取图片列表
-     *
      */
     @PostMapping("/list")
+    @Operation(summary = "用户获取图片列表")
     public BaseResponse<Page<PictureVO>> listPicture(@RequestBody PictureListReq pictureListReq) {
 
         Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(pictureListReq);
 
         return ResultUtils.success(pictureVOPage);
     }
+
+       /**
+     * 用户上传图片到个人空间
+     *
+     * @param file 图片文件
+     * @param pictureName 图片名称
+     * @param pictureIntroduction 简介
+     * @param pictureCategory 分类
+     * @param pictureTags 标签（JSON 数组字符串）
+     * @param spaceId 空间 ID
+     * @param isOpen 是否公开（0-不公开，1-公开）
+     * @param request 请求
+     * @return 上传后的图片信息
+     */
+    @PostMapping(value = "/upload/space", consumes = "multipart/form-data")
+    @Operation(summary = "上传到用户空间", description = "将图片上传到用户的私有空间，支持公开/私密设置")
+    public BaseResponse<PictureVO> uploadPictureToUserSpace(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam String pictureName,
+            @RequestParam(required = false) String pictureIntroduction,
+            @RequestParam(required = false) String pictureCategory,
+            @RequestParam(required = false) String pictureTags,
+            @RequestParam Long spaceId,
+            @RequestParam(defaultValue = "0") int isOpen,
+            HttpServletRequest request){
+
+        User loginUser = userService.getLoginUser(request);
+
+        PictureUploadToUserSpaceReq req = new PictureUploadToUserSpaceReq();
+        req.setPictureName(pictureName);
+        req.setPictureIntroduction(pictureIntroduction);
+        req.setPictureCategory(pictureCategory);
+        req.setPictureTags(pictureTags);
+        req.setSpaceId(spaceId);
+        req.setIsOpen(isOpen);
+
+        PictureVO pictureVO = userPictureService.uploadPictureToUserSpace(file, req, loginUser);
+
+        return ResultUtils.success(pictureVO);
+    }
+
 
 
 }

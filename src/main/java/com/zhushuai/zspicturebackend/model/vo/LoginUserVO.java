@@ -15,9 +15,9 @@ import java.util.Date;
 @Data
 public class LoginUserVO {
     /**
-     * id
+     * 用户 id
      */
-    private Long id;
+    private Long userId;
 
     /**
      * 账号

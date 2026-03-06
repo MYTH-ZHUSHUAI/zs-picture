@@ -3,10 +3,8 @@ package com.zhushuai.zspicturebackend.model.dto.picture;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class PictureUploadReq {
+public class PictureUploadToUserSpaceReq {
 
     /**
      * 图片名称
@@ -27,5 +25,15 @@ public class PictureUploadReq {
      * 标签
      */
     private String pictureTags;
+
+    /**
+     * 用户空间id
+     */
+    private Long spaceId;
+
+    /**
+     * 是否公开
+     */
+    private int isOpen;
 
 }

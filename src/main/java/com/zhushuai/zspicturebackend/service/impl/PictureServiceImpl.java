@@ -20,6 +20,7 @@ import com.zhushuai.zspicturebackend.model.vo.UploadPictureResultVO;
 import com.zhushuai.zspicturebackend.service.PictureService;
 import com.zhushuai.zspicturebackend.mapper.PictureMapper;
 import com.zhushuai.zspicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * @createDate 2026-03-01 08:36:06
  */
 @Service
+@Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
     @Resource
@@ -46,39 +48,35 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
 
     /**
-     * 上传图片
+     * 上传图片到公共空间中
      *
      * @param pictureUploadReq 图片请求
      * @param user             用户
      * @return
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile file, PictureUploadReq pictureUploadReq, User user) {
+    public PictureVO uploadPicture(MultipartFile file,
+                                   PictureUploadReq pictureUploadReq,
+                                   User user) {
 
-        ThrowUtils.throwIf(file == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
+        ThrowUtils.throwIf(file == null || file.isEmpty() || pictureUploadReq == null,
+                ErrorCode.PARAMS_ERROR,
+                "请求参数错误");
 
         try {
-
-            byte[] bytes = file.getBytes();
-
             // ===== 1️⃣ 计算 MD5 =====
-            String md5 = DigestUtil.md5Hex(bytes);
+            String md5 = DigestUtil.md5Hex(file.getBytes());
 
             // ===== 2️⃣ 查询是否已存在 =====
             Picture existPicture = this.lambdaQuery().eq(Picture::getMd5, md5).one();
 
             if (existPicture != null) {
                 // 秒传成功，直接返回
-                return PictureVO.objToVo(existPicture, userService.getUserVO(user)
-                );
+                return PictureVO.objToVo(existPicture, userService.getUserVO(user));
             }
 
             // ===== 3️⃣ 不存在才真正上传 =====
-            UploadPictureResultVO uploadResult = imageUploadManger.upload(
-                    bytes,
-                    file.getOriginalFilename(),
-                    file.getContentType()
-            );
+            UploadPictureResultVO uploadResult = imageUploadManger.uploadPicture(file);
 
             // ===== 4️⃣ 构造 Picture =====
             Picture picture = new Picture();
@@ -94,6 +92,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             boolean saved = this.save(picture);
             ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "图片上传失败");
 
+            log.info("图片上传到公共空间中");
             return PictureVO.objToVo(picture, userService.getUserVO(user));
 
         } catch (Exception e) {

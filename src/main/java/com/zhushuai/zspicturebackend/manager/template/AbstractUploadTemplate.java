@@ -13,6 +13,7 @@ import com.zhushuai.zspicturebackend.exception.ThrowUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
@@ -43,7 +44,11 @@ public abstract class AbstractUploadTemplate<T> {
     }
 
 
-    public final T upload(byte[] fileBytes, String originalName, String contentType) throws Exception {
+    public final T uploadPicture(MultipartFile file) throws Exception {
+
+        byte[] fileBytes = file.getBytes();
+        String originalName = file.getOriginalFilename();
+        String contentType = file.getContentType();
 
         // 1️⃣ 校验
         validate(fileBytes, originalName);

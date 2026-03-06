@@ -18,9 +18,9 @@ import java.util.List;
 public class PictureVO implements Serializable {
 
     /**
-     * id
+     * 图片 id
      */
-    private Long id;
+    private Long pictureId;
 
     /**
      * 图片 url

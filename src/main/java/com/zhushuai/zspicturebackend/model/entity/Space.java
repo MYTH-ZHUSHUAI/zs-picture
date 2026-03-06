@@ -18,10 +18,10 @@ import lombok.Data;
 @Data
 public class Space {
     /**
-     * id
+     * 空间 id
      */
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private Long spaceId;
 
     /**
      * 空间名称

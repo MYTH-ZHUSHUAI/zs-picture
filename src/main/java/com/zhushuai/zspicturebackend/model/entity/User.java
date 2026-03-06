@@ -15,10 +15,10 @@ import lombok.Data;
 @Data
 public class User {
     /**
-     * id
+     * 用户 id
      */
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private Long userId;
 
     /**
      * 账号

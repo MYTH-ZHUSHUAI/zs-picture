@@ -12,9 +12,9 @@ import java.util.Date;
 @Data
 public class UserVO {
     /**
-     * id
+     * 用户 id
      */
-    private Long id;
+    private Long userId;
 
     /**
      * 账号
