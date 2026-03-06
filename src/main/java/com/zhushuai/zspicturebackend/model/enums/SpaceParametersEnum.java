@@ -13,7 +13,6 @@ import lombok.Getter;
 public enum SpaceParametersEnum {
 
     
-    COMMON(),
     NORMAL(0, "普通版", 1024 * 1024 * 1024 * 10L, 1000L),
     PROFESSIONAL(1, "专业版", 1024 * 1024 * 1024 * 50L, 5000L),
     FLAGSHIP(2, "旗舰版", 1024 * 1024 * 1024 * 100L, 10000L);
