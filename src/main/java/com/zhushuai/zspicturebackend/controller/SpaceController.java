@@ -1,15 +1,18 @@
 package com.zhushuai.zspicturebackend.controller;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhushuai.zspicturebackend.annotation.AuthCheck;
 import com.zhushuai.zspicturebackend.common.BaseResponse;
 import com.zhushuai.zspicturebackend.common.ResultUtils;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceAddReq;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceEditReq;
+import com.zhushuai.zspicturebackend.model.dto.space.SpaceQueryReq;
+import com.zhushuai.zspicturebackend.model.entity.Space;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.vo.SpaceVO;
 import com.zhushuai.zspicturebackend.service.SpaceService;
 import com.zhushuai.zspicturebackend.service.UserService;
-import com.zhushuai.zspicturebackend.service.impl.SpaceServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,7 +47,7 @@ public class SpaceController {
 
     @Operation(summary = "修改空间")
     @PostMapping("/edit")
-    public BaseResponse<SpaceVO> spaceEdit(@RequestBody SpaceEditReq spaceEditReq,
+    public BaseResponse<SpaceVO> spaceList(@RequestBody SpaceEditReq spaceEditReq,
                                            HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
 
@@ -54,4 +57,41 @@ public class SpaceController {
     }
 
 
+    /**
+     * 管理员获取对应用户的所有空间
+     *
+     * @param spaceQueryReq
+     * @param request
+     * @return
+     */
+    @Operation(summary = "管理员分页查询空间")
+    @PostMapping("/listadmin")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Page<Space>> spaceList(@RequestBody SpaceQueryReq spaceQueryReq,
+                                               HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+
+        Page<Space> spaceList = spaceService.getSpaceList(spaceQueryReq, loginUser);
+
+        return ResultUtils.success(spaceList);
+    }
+
+
+    /**
+     * 获取对应用户的所有空间
+     *
+     * @param spaceQueryReq
+     * @param request
+     * @return
+     */
+    @Operation(summary = "普通用户分页查询空间")
+    @PostMapping("/listuser")
+    public BaseResponse<Page<SpaceVO>> spaceVOList(@RequestBody SpaceQueryReq spaceQueryReq,
+                                               HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+
+        Page<SpaceVO> spaceList = spaceService.getSpaceVOList(spaceQueryReq, loginUser);
+
+        return ResultUtils.success(spaceList);
+    }
 }

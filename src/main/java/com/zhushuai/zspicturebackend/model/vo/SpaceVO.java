@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.zhushuai.zspicturebackend.model.entity.Space;
+import com.zhushuai.zspicturebackend.model.entity.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -39,14 +40,15 @@ public class SpaceVO {
     private Long totalCount;
 
     /**
-     * 创建用户 id
-     */
-    private Long userId;
-
-    /**
      * 创建时间
      */
     private Date createTime;
+
+
+    /**
+     * 用户信息
+     */
+    private Long userId;
 
     public static SpaceVO objToVO(Space space) {
         if (space == null) {

@@ -27,4 +27,9 @@ public class PictureUploadReq {
      * 标签
      */
     private List<String> pictureTags;
+
+    /**
+     * 所属空间id
+     */
+    private Long pictureUrl;
 }
