@@ -11,10 +11,6 @@ import java.util.Date;
 
 @Data
 public class SpaceUserVO {
-    /**
-     * id
-     */
-    private Long id;
 
     /**
      * 空间 id

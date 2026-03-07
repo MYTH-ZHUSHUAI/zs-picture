@@ -13,13 +13,8 @@ import java.util.Date;
  *
  * @TableName user
  */
-@TableName(value = "user")
 @Data
 public class UserAddRequest {
-    /**
-     * id
-     */
-    private Long id;
 
     /**
      * 账号

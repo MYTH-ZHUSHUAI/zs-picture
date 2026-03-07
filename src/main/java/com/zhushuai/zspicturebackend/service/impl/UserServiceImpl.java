@@ -66,6 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptedPassword);
         user.setUserRole(UserRoleEnum.USER.getValue());
+        user.setUserName(userAccount);
         boolean saveRes = this.save(user);
         ThrowUtils.throwIf(!saveRes, ErrorCode.OPERATION_ERROR, "新增用户失败");
 
@@ -276,6 +277,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return false;
         }
         return user.getUserRole().equals(UserConstant.USER_ROLE_ADMIN);
+    }
+
+
+    /**
+     * 根据ids获取用户列表
+     *
+     * @param userList
+     * @return
+     */
+    @Override
+    public List<UserVO> listUserVO(List<Long> userList) {
+        if (CollUtil.isEmpty(userList)) {
+            return Collections.emptyList();
+        }
+
+
+        List<User> users = this.listByIds(userList);
+
+        // 转换为 UserVO 并返回
+        return getUserVOList(users);
     }
 }
 
