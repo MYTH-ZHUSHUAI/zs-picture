@@ -39,9 +39,6 @@ import java.util.stream.Collectors;
 public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         implements SpaceService {
 
-    @Resource
-    private SpaceMapper spaceMapper;
-
 
     /**
      * 创建空间
@@ -55,7 +52,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
         ThrowUtils.throwIf(spaceAddReq == null, ErrorCode.PARAMS_ERROR);
 
-        // 配置锁，锁住当前用户
+
+        // 配置锁，锁住当前用户，空间个数不得大于10个
         String lock = String.valueOf(user.getId()).intern();
         synchronized (lock) {
             // 得到用户的空间个数
@@ -74,6 +72,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             BeanUtils.copyProperties(spaceParametersEnum, space);
 
 
+            space.setSpaceType(spaceAddReq.getSpaceType());
             space.setUserId(user.getId());
             boolean saved = this.save(space);
             ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "空间添加失败");
