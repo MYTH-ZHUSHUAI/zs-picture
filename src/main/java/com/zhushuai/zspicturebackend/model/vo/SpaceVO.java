@@ -50,6 +50,12 @@ public class SpaceVO {
      */
     private Long userId;
 
+    /**
+     * 空间类型：0-私有 1-团队
+     */
+    private Integer spaceType;
+
+
     public static SpaceVO objToVO(Space space) {
         if (space == null) {
             return null;

@@ -26,6 +26,12 @@ public class SpaceEditReq implements Serializable {
      * 空间描述
      */
     private String spaceDescription;
+
+    /**
+     * 空间类型：0-私有 1-团队
+     */
+    private Integer spaceType;
+
 }
 
 
