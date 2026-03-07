@@ -62,7 +62,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             Long count = this.lambdaQuery().eq(Space::getUserId, user.getId()).count();
             ThrowUtils.throwIf(count > SpaceConstant.MAX_SPACE_COUNT,
                     ErrorCode.OPERATION_ERROR,
-                    "用户空间不得大于10个");
+                    "用户空间不得大于 10 个");
 
             // 创建空间
             // 得到用户空间类型枚举类

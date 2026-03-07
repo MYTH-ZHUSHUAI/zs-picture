@@ -20,8 +20,8 @@ public class Picture {
     /**
      * 图片 id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long pictureId;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
      * 图片 url
@@ -124,8 +124,4 @@ public class Picture {
      */
     private String watermarkedThumbnailUrl;
 
-    /**
-     * 原图 URL（原始格式）
-     */
-    private String originalUrl;
 }

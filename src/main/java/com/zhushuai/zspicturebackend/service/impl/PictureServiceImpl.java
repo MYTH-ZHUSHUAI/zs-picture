@@ -82,7 +82,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             Picture picture = new Picture();
             BeanUtils.copyProperties(uploadResult, picture);
 
-            picture.setMd5(md5);  // 保存 md5
+            picture.setMd5(md5);
             picture.setName(pictureUploadReq.getPictureName());
             picture.setIntroduction(pictureUploadReq.getPictureIntroduction());
             picture.setCategory(pictureUploadReq.getPictureCategory());
@@ -93,7 +93,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "图片上传失败");
 
             log.info("图片上传到公共空间中");
-            return PictureVO.objToVo(picture, userService.getUserVO(user));
+            return PictureVO.objToVo(this.getById(picture.getId()), userService.getUserVO(user));
 
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片上传失败");
@@ -123,7 +123,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
         // 将图片重新查出来
         picture = this.getById(picture.getId());
-
 
         return PictureVO.objToVo(picture, userService.getUserVO(user));
     }
@@ -283,6 +282,17 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      */
     @Override
     public PictureVO queryPictureById(PictureQueryReq pictureQueryReq) {
+        return null;
+    }
+
+
+    /**
+     * 根据颜色查询图片
+     * @param color
+     * @return
+     */
+    @Override
+    public Page<PictureVO> getPictureListByColor(String color) {
         return null;
     }
 }

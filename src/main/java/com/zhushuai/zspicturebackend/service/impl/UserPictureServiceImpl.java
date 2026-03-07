@@ -101,7 +101,7 @@ public class UserPictureServiceImpl extends ServiceImpl<UserPictureMapper, UserP
                     boolean saved = pictureService.save(picture);
                     ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "保存图片到公共库失败");
 
-                    log.info("图片 MD5={} 已上传到公共库，ID={}", md5, picture.getPictureId());
+                    log.info("图片 MD5={} 已上传到公共库，ID={}", md5, picture.getId());
                 }
             } else {
                 // ===== 4️⃣ 处理私有图片（仅上传到 OSS）=====
@@ -120,7 +120,7 @@ public class UserPictureServiceImpl extends ServiceImpl<UserPictureMapper, UserP
             return PictureVO.objToVo(picture, userService.getUserVO(user));
 
         } catch (BusinessException e) {
-            log.error("上传到用户空间失败，userId={}, spaceId={}, error={}", user.getUserId(), req.getSpaceId(), e.getMessage(), e);
+            log.error("上传到用户空间失败，userId={}, spaceId={}, error={}", user.getId(), req.getSpaceId(), e.getMessage(), e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败：" + e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -164,7 +164,7 @@ public class UserPictureServiceImpl extends ServiceImpl<UserPictureMapper, UserP
             }
         }
 
-        picture.setUserId(user.getUserId());
+        picture.setUserId(user.getId());
         return picture;
     }
 
@@ -180,7 +180,7 @@ public class UserPictureServiceImpl extends ServiceImpl<UserPictureMapper, UserP
         userPicture.setMd5(md5);
         userPicture.setSpaceId(req.getSpaceId());
         userPicture.setIsOpen(req.getIsOpen());
-        userPicture.setUserId(user.getUserId());
+        userPicture.setUserId(user.getId());
         return userPicture;
     }
 }

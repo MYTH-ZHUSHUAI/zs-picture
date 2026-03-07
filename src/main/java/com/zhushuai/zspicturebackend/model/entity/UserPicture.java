@@ -20,8 +20,8 @@ public class UserPicture {
     /**
      * 用户图片关联 id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long userPictureId;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
      * 图片 url

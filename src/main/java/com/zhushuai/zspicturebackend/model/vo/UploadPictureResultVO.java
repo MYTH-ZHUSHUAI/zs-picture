@@ -31,7 +31,6 @@ public class UploadPictureResultVO {
      */
     private String name;
 
-
     /**
      * 文件体积
      */
@@ -71,10 +70,4 @@ public class UploadPictureResultVO {
      * 带水印的缩略图 URL
      */
     private String watermarkedThumbnailUrl;
-
-    /**
-     * 原图 URL（原始格式）
-     */
-    private String originalUrl;
-
 }

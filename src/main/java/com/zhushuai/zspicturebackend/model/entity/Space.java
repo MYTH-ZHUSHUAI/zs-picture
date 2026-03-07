@@ -20,8 +20,8 @@ public class Space {
     /**
      * 空间 id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long spaceId;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
      * 空间名称

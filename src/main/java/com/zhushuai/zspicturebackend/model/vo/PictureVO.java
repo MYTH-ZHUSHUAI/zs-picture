@@ -20,7 +20,7 @@ public class PictureVO implements Serializable {
     /**
      * 图片 id
      */
-    private Long pictureId;
+    private Long id;
 
     /**
      * 图片 url
@@ -103,10 +103,6 @@ public class PictureVO implements Serializable {
      */
     private String watermarkedThumbnailUrl;
 
-    /**
-     * 原图 URL（原始格式）
-     */
-    private String originalUrl;
 
     private static final long serialVersionUID = 1L;
 

@@ -17,7 +17,7 @@ public class LoginUserVO {
     /**
      * 用户 id
      */
-    private Long userId;
+    private Long id;
 
     /**
      * 账号

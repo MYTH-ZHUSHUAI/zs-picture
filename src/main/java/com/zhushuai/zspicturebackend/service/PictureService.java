@@ -78,7 +78,13 @@ public interface PictureService extends IService<Picture> {
     PictureVO queryPictureById(PictureQueryReq pictureQueryReq);
 
 
-
+    /**
+     * 根据上传的图片色调搜图
+     *
+     * @param color
+     * @return
+     */
+    Page<PictureVO> getPictureListByColor(String color);
 
 
 }
