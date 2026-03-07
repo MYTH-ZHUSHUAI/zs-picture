@@ -45,9 +45,17 @@ public interface SpaceUserService extends IService<SpaceUser> {
     /**
      * 为空间添加用户
      *
-     * @param spaceUserAddReq
+     * @param spaceUserEditReq
      * @return
      */
     SpaceUserVO editSpaceUser(SpaceUserEditReq spaceUserEditReq);
+
+
+
+    /**
+     * 删除空间用户
+     *
+     */
+    int deleteSpaceUserBySpaceId(Long id);
 
 }

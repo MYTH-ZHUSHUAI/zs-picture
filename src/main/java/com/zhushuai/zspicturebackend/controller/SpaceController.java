@@ -87,11 +87,31 @@ public class SpaceController {
     @Operation(summary = "普通用户分页查询空间")
     @PostMapping("/listuser")
     public BaseResponse<Page<SpaceVO>> spaceVOList(@RequestBody SpaceQueryReq spaceQueryReq,
-                                               HttpServletRequest request) {
+                                                   HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
 
         Page<SpaceVO> spaceList = spaceService.getSpaceVOList(spaceQueryReq, loginUser);
 
         return ResultUtils.success(spaceList);
     }
+
+
+    /**
+     * 删除空间
+     *
+     * @param space
+     * @param request
+     * @return
+     */
+    @PostMapping("/delete")
+    public BaseResponse<Integer> deleteSpace(Long id,
+                                             HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+
+        int delete = spaceService.deleteSpace(id);
+
+        return ResultUtils.success(delete);
+    }
+
+
 }

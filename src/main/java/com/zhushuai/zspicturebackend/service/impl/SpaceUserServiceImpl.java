@@ -136,6 +136,25 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
 
         return SpaceUserVO.objToVO(spaceUser);
     }
+
+
+    /**
+     * 根据空间 id 删除空间用户
+     *
+     * @param id 空间 ID
+     * @return 是否删除成功
+     */
+    @Override
+    public int deleteSpaceUserBySpaceId(Long id) {
+        // 校验参数
+        ThrowUtils.throwIf(id == null || id <= 0, ErrorCode.PARAMS_ERROR, "空间 ID 无效");
+
+        LambdaQueryWrapper<SpaceUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SpaceUser::getSpaceId, id);
+
+        // 删除并返回影响行数
+        return baseMapper.delete(wrapper);
+    }
 }
 
 

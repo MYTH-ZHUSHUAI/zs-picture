@@ -50,4 +50,11 @@ public interface SpaceService extends IService<Space> {
     Page<Space> getSpaceList(SpaceQueryReq spaceQueryReq, User user);
 
 
+    /**
+     * 删除空间
+     * @param spaceId
+     * @return
+     */
+    int deleteSpace(Long spaceId);
+
 }

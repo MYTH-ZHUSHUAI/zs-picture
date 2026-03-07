@@ -11,14 +11,18 @@ import com.zhushuai.zspicturebackend.exception.ThrowUtils;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceAddReq;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceEditReq;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceQueryReq;
+import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserAddReq;
 import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.zhushuai.zspicturebackend.model.entity.Space;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.enums.SpaceParametersEnum;
+import com.zhushuai.zspicturebackend.model.enums.SpaceUserEnum;
 import com.zhushuai.zspicturebackend.model.vo.PictureVO;
+import com.zhushuai.zspicturebackend.model.vo.SpaceUserVO;
 import com.zhushuai.zspicturebackend.model.vo.SpaceVO;
 import com.zhushuai.zspicturebackend.service.SpaceService;
 import com.zhushuai.zspicturebackend.mapper.SpaceMapper;
+import com.zhushuai.zspicturebackend.service.SpaceUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +44,10 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         implements SpaceService {
 
 
+    @Resource
+    private SpaceUserService spaceUserService;
+
+
     /**
      * 创建空间
      *
@@ -48,6 +56,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
      * @return
      */
     @Override
+    @Transactional
     public SpaceVO spaceAdd(SpaceAddReq spaceAddReq, User user) {
 
         ThrowUtils.throwIf(spaceAddReq == null, ErrorCode.PARAMS_ERROR);
@@ -76,6 +85,14 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             space.setUserId(user.getId());
             boolean saved = this.save(space);
             ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "空间添加失败");
+
+
+            // 添加空间用户
+            SpaceUserAddReq spaceUserAddReq = new SpaceUserAddReq();
+            spaceUserAddReq.setSpaceId(space.getId());
+            spaceUserAddReq.setUserId(user.getId());
+            spaceUserAddReq.setSpaceRole(SpaceUserEnum.ADMIN.getValue());
+            SpaceUserVO spaceUserVO = spaceUserService.addSpaceUser(spaceUserAddReq);
 
 
             return SpaceVO.objToVO(this.getById(space.getId()));
@@ -165,6 +182,29 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         spaceQueryWrapper.orderByDesc("createTime");
 
         return this.page(page, spaceQueryWrapper);
+    }
+
+
+    /**
+     * 删除空间
+     *
+     * @param spaceId
+     * @return
+     */
+    @Override
+    @Transactional
+    public int deleteSpace(Long spaceId) {
+
+        ThrowUtils.throwIf(spaceId == null || spaceId <= 0, ErrorCode.PARAMS_ERROR);
+
+        int deleted = baseMapper.deleteById(spaceId);
+
+        if (deleted > 0) {
+            int deleteSpaceUserBySpaceId = spaceUserService.deleteSpaceUserBySpaceId(spaceId);
+        }
+        ThrowUtils.throwIf(deleted <= 0, ErrorCode.OPERATION_ERROR, "未找到该空间");
+
+        return deleted;
     }
 }
 
