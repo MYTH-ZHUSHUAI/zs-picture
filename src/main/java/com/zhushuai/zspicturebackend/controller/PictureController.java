@@ -106,17 +106,17 @@ public class PictureController {
         return ResultUtils.success(pictureVOPage);
     }
 
-       /**
+    /**
      * 用户上传图片到个人空间
      *
-     * @param file 图片文件
-     * @param pictureName 图片名称
+     * @param file                图片文件
+     * @param pictureName         图片名称
      * @param pictureIntroduction 简介
-     * @param pictureCategory 分类
-     * @param pictureTags 标签（JSON 数组字符串）
-     * @param spaceId 空间 ID
-     * @param isOpen 是否公开（0-不公开，1-公开）
-     * @param request 请求
+     * @param pictureCategory     分类
+     * @param pictureTags         标签（JSON 数组字符串）
+     * @param spaceId             空间 ID
+     * @param isOpen              是否公开（0-不公开，1-公开）
+     * @param request             请求
      * @return 上传后的图片信息
      */
     @PostMapping(value = "/upload/space", consumes = "multipart/form-data")
@@ -129,7 +129,7 @@ public class PictureController {
             @RequestParam(required = false) String pictureTags,
             @RequestParam Long spaceId,
             @RequestParam(defaultValue = "0") int isOpen,
-            HttpServletRequest request){
+            HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
 
@@ -146,6 +146,14 @@ public class PictureController {
         return ResultUtils.success(pictureVO);
     }
 
+    @PostMapping(value = "/upload/colod")
+    @Operation(summary = "根据颜色查找图片", description = "将图片上传到用户的私有空间，支持公开/私密设置")
+    public BaseResponse<Page<PictureVO>> uploadPictureToUserSpace(String color,
+                                                                  HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
 
+        Page<PictureVO> pictureListByColor = pictureService.getPictureListByColor(color);
 
+        return ResultUtils.success(pictureListByColor);
+    }
 }

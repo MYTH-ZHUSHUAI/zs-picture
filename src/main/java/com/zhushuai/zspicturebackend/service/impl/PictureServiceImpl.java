@@ -287,13 +287,104 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
 
     /**
-     * 根据颜色查询图片
-     * @param color
-     * @return
+     * 根据颜色查询图片（基于 RGB 距离计算相似度）
+     * @param color 目标颜色（HEX 格式，如 #FF5733）
+     * @return 按颜色相似度排序的前 10 张图片
      */
     @Override
     public Page<PictureVO> getPictureListByColor(String color) {
-        return null;
+        // 校验参数
+        ThrowUtils.throwIf(StrUtil.isBlank(color), ErrorCode.PARAMS_ERROR, "颜色不能为空");
+        
+        // 解析目标颜色的 RGB 值
+        int[] targetRgb = parseHexToRgb(color);
+        ThrowUtils.throwIf(targetRgb == null, ErrorCode.PARAMS_ERROR, "无效的颜色格式");
+        
+        // 查询所有未删除且有主色调的图片
+        List<Picture> allPictures = this.lambdaQuery()
+                .eq(Picture::getIsDelete, 0)
+                .isNotNull(Picture::getMainColor)
+                .list();
+        
+        // 计算每张图片与目标颜色的距离并排序
+        List<PictureWithDistance> pictureWithDistances = allPictures.stream()
+                .filter(picture -> StrUtil.isNotBlank(picture.getMainColor()))
+                .map(picture -> {
+                    int[] pictureRgb = parseHexToRgb(picture.getMainColor());
+                    if (pictureRgb == null) {
+                        return null;
+                    }
+                    double distance = calculateRgbDistance(targetRgb, pictureRgb);
+                    return new PictureWithDistance(picture, distance);
+                })
+                .filter(item -> item != null)
+                .sorted((a, b) -> Double.compare(a.distance, b.distance))
+                .limit(10)
+                .collect(Collectors.toList());
+        
+        // 转换为 PictureVO 列表
+        List<PictureVO> pictureVOList = pictureWithDistances.stream()
+                .map(item -> PictureVO.objToVo(item.picture, null))
+                .collect(Collectors.toList());
+        
+        // 构建分页结果（总共就 10 条）
+        Page<PictureVO> resultPage = new Page<>(1, 10);
+        resultPage.setTotal(pictureVOList.size());
+        resultPage.setRecords(pictureVOList);
+        
+        log.info("根据颜色查询图片，目标颜色={}, 找到{}张相似图片", color, pictureVOList.size());
+        
+        return resultPage;
+    }
+    
+    /**
+     * 解析 HEX 颜色为 RGB 数组
+     * @param hexColor HEX 格式颜色（如 #FF5733）
+     * @return RGB 数组 [r, g, b]
+     */
+    private int[] parseHexToRgb(String hexColor) {
+        try {
+            if (hexColor == null || !hexColor.startsWith("#") || hexColor.length() != 7) {
+                return null;
+            }
+            
+            int r = Integer.parseInt(hexColor.substring(1, 3), 16);
+            int g = Integer.parseInt(hexColor.substring(3, 5), 16);
+            int b = Integer.parseInt(hexColor.substring(5, 7), 16);
+            
+            return new int[]{r, g, b};
+        } catch (Exception e) {
+            log.error("解析 HEX 颜色失败：{}", hexColor, e);
+            return null;
+        }
+    }
+    
+    /**
+     * 计算两个 RGB 颜色之间的距离（欧几里得距离的平方）
+     * @param rgb1 第一个颜色的 RGB 数组
+     * @param rgb2 第二个颜色的 RGB 数组
+     * @return RGB 距离的平方
+     */
+    private double calculateRgbDistance(int[] rgb1, int[] rgb2) {
+        int dr = rgb1[0] - rgb2[0];
+        int dg = rgb1[1] - rgb2[1];
+        int db = rgb1[2] - rgb2[2];
+        
+        // 使用距离的平方，避免开方运算提高性能
+        return dr * dr + dg * dg + db * db;
+    }
+    
+    /**
+     * 内部类：带距离信息的图片对象
+     */
+    static class PictureWithDistance {
+        Picture picture;
+        double distance;
+        
+        PictureWithDistance(Picture picture, double distance) {
+            this.picture = picture;
+            this.distance = distance;
+        }
     }
 }
 
