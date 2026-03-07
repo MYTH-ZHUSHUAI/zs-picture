@@ -49,6 +49,11 @@ public class CosClientConfig {
      */
     private String host;
 
+    /**
+     * CI 服务域名（用于数据万象 API）
+     */
+    private String ciHost;
+
     @Bean
     public COSClient cosClient() {
 
@@ -81,5 +86,13 @@ public class CosClientConfig {
         transferManager.setConfiguration(configuration);
 
         return transferManager;
+    }
+
+    /**
+     * 异步任务执行器（用于保存图片到本地等）
+     */
+    @Bean(name = "pictureAsyncExecutor")
+    public ExecutorService asyncExecutor() {
+        return Executors.newFixedThreadPool(10);
     }
 }

@@ -88,6 +88,26 @@ public class PictureVO implements Serializable {
      */
     private UserVO user;
 
+    /**
+     * 图片主色调
+     */
+    private String mainColor;
+
+    /**
+     * 带水印的原图 URL
+     */
+    private String watermarkedUrl;
+
+    /**
+     * 带水印的缩略图 URL
+     */
+    private String watermarkedThumbnailUrl;
+
+    /**
+     * 原图 URL（原始格式）
+     */
+    private String originalUrl;
+
     private static final long serialVersionUID = 1L;
 
     /**

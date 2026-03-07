@@ -115,7 +115,27 @@ public class UserPicture {
     private String md5;
 
     /**
-     * 空间 id（为0表示公共空间）
+     * 空间 id（为 0 表示公共空间）
      */
     private Long spaceId;
+
+    /**
+     * 图片主色调（RGB 十六进制格式，如 #FF5733）
+     */
+    private String mainColor;
+
+    /**
+     * 带水印的原图 URL
+     */
+    private String watermarkedUrl;
+
+    /**
+     * 带水印的缩略图 URL
+     */
+    private String watermarkedThumbnailUrl;
+
+    /**
+     * 原图 URL（原始格式）
+     */
+    private String originalUrl;
 }

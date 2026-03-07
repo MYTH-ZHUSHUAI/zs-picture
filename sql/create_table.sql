@@ -41,8 +41,12 @@ CREATE TABLE IF NOT EXISTS picture
     reviewTime    datetime                           null comment '审核时间',
     thumbnailUrl  varchar(512)                       null comment '缩略图 url',
     md5           varchar(64)                        not null comment '图片 MD5 值',
-    spaceId       bigint   default 0                 not null comment '空间 id（为0表示公共空间）',
-
+    spaceId       bigint   default 0                 not null comment '空间 id（为 0 表示公共空间）',
+    mainColor     varchar(32)                        null comment '图片主色调（RGB 十六进制格式）',
+    watermarkedUrl  varchar(512)                     null comment '带水印的原图 URL',
+    watermarkedThumbnailUrl varchar(512)             null comment '带水印的缩略图 URL',
+    originalUrl   varchar(512)                       null comment '原图 URL（原始格式）',
+    
     INDEX idx_name (name),
     INDEX idx_introduction (introduction),
     INDEX idx_category (category),
@@ -75,8 +79,12 @@ CREATE TABLE IF NOT EXISTS user_picture
     isOpen       tinyint  default 0                 not null comment '是否公开',
     thumbnailUrl varchar(512)                       null comment '缩略图 url',
     md5          varchar(64)                        not null comment '图片 MD5 值',
-    spaceId      bigint   default 0                 not null comment '空间 id（为0表示公共空间）',
-
+    spaceId      bigint   default 0                 not null comment '空间 id（为 0 表示公共空间）',
+    mainColor    varchar(32)                        null comment '图片主色调（RGB 十六进制格式）',
+    watermarkedUrl  varchar(512)                     null comment '带水印的原图 URL',
+    watermarkedThumbnailUrl varchar(512)             null comment '带水印的缩略图 URL',
+    originalUrl   varchar(512)                       null comment '原图 URL（原始格式）',
+    
     INDEX idx_name (name),
     INDEX idx_introduction (introduction),
     INDEX idx_category (category),
@@ -84,3 +92,18 @@ CREATE TABLE IF NOT EXISTS user_picture
     INDEX idx_userId (userId),
     INDEX idx_spaceId (spaceId)
 ) comment '图片' collate = utf8mb4_unicode_ci;
+
+
+-- 为 picture 表添加新字段
+ALTER TABLE picture
+ADD COLUMN mainColor varchar(32) DEFAULT NULL COMMENT '图片主色调 (RGB 十六进制格式)',
+ADD COLUMN watermarkedUrl varchar(512) DEFAULT NULL COMMENT '带水印的原图 URL',
+ADD COLUMN watermarkedThumbnailUrl varchar(512) DEFAULT NULL COMMENT '带水印的缩略图 URL',
+ADD COLUMN originalUrl varchar(512) DEFAULT NULL COMMENT '原图 URL（原始格式）';
+
+-- 为 user_picture 表添加新字段
+ALTER TABLE user_picture
+ADD COLUMN mainColor varchar(32) DEFAULT NULL COMMENT '图片主色调 (RGB 十六进制格式)',
+ADD COLUMN watermarkedUrl varchar(512) DEFAULT NULL COMMENT '带水印的原图 URL',
+ADD COLUMN watermarkedThumbnailUrl varchar(512) DEFAULT NULL COMMENT '带水印的缩略图 URL',
+ADD COLUMN originalUrl varchar(512) DEFAULT NULL COMMENT '原图 URL（原始格式）';

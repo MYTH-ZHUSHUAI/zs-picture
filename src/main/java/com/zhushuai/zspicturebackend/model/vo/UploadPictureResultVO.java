@@ -57,4 +57,24 @@ public class UploadPictureResultVO {
      */
     private String picFormat;
 
+    /**
+     * 图片主色调
+     */
+    private String mainColor;
+
+    /**
+     * 带水印的原图 URL
+     */
+    private String watermarkedUrl;
+
+    /**
+     * 带水印的缩略图 URL
+     */
+    private String watermarkedThumbnailUrl;
+
+    /**
+     * 原图 URL（原始格式）
+     */
+    private String originalUrl;
+
 }
