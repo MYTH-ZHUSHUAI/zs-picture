@@ -1,7 +1,6 @@
 package com.zhushuai.zspicturebackend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
 import com.zhushuai.zspicturebackend.exception.ThrowUtils;
@@ -9,8 +8,7 @@ import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserAddReq;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserDeleteReq;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserEditReq;
 import com.zhushuai.zspicturebackend.model.entity.SpaceUser;
-import com.zhushuai.zspicturebackend.model.entity.User;
-import com.zhushuai.zspicturebackend.model.enums.SpaceUserEnum;
+import com.zhushuai.zspicturebackend.model.enums.SpaceUserTypeEnum;
 import com.zhushuai.zspicturebackend.model.vo.SpaceUserVO;
 import com.zhushuai.zspicturebackend.model.vo.UserVO;
 import com.zhushuai.zspicturebackend.service.SpaceUserService;
@@ -45,12 +43,12 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
     public SpaceUserVO addSpaceUser(SpaceUserAddReq spaceUserAddReq) {
 
         int spaceRole = spaceUserAddReq.getSpaceRole();
-        SpaceUserEnum spaceUserEnum = SpaceUserEnum.getEnumByValue(spaceRole);
-        ThrowUtils.throwIf(spaceUserEnum == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
+        SpaceUserTypeEnum spaceUserTypeEnum = SpaceUserTypeEnum.getEnumByValue(spaceRole);
+        ThrowUtils.throwIf(spaceUserTypeEnum == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
 
         SpaceUser spaceUser = new SpaceUser();
         BeanUtils.copyProperties(spaceUserAddReq, spaceUser);
-        spaceUser.setSpaceRole(spaceUserEnum.getRole());
+        spaceUser.setSpaceRole(spaceUserTypeEnum.getRole());
 
         boolean saved = this.save(spaceUser);
         ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR, "空间用户添加失败");
@@ -116,9 +114,9 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
         Long spaceId = spaceUserEditReq.getSpaceId();
         Long userId = spaceUserEditReq.getUserId();
         int spaceRole = spaceUserEditReq.getSpaceRole();
-        SpaceUserEnum spaceUserEnum = SpaceUserEnum.getEnumByValue(spaceRole);
+        SpaceUserTypeEnum spaceUserTypeEnum = SpaceUserTypeEnum.getEnumByValue(spaceRole);
 
-        ThrowUtils.throwIf(spaceUserEnum == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
+        ThrowUtils.throwIf(spaceUserTypeEnum == null, ErrorCode.PARAMS_ERROR, "请求参数错误");
 
         LambdaQueryWrapper<SpaceUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SpaceUser::getSpaceId, spaceId)
@@ -130,7 +128,7 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
         ThrowUtils.throwIf(spaceUser == null, ErrorCode.NOT_FOUND_ERROR, "空间用户不存在");
 
         // 更新角色
-        spaceUser.setSpaceRole(spaceUserEnum.getRole());
+        spaceUser.setSpaceRole(spaceUserTypeEnum.getRole());
         boolean updated = this.updateById(spaceUser);
         ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR, "更新失败");
 
@@ -154,6 +152,27 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
 
         // 删除并返回影响行数
         return baseMapper.delete(wrapper);
+    }
+
+    /**
+     * 获取空间用户角色
+     *
+     * @param SpaceId
+     * @param UserId
+     * @return
+     */
+    @Override
+    public SpaceUserTypeEnum getSpaceUserTypeEnum(Long spaceId, Long userId) {
+        ThrowUtils.throwIf(spaceId < 0 || userId < 0, ErrorCode.PARAMS_ERROR);
+
+        LambdaQueryWrapper<SpaceUser> wrapper = new LambdaQueryWrapper<SpaceUser>()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getUserId, userId);
+
+        SpaceUser spaceUser = this.getOne(wrapper);
+        ThrowUtils.throwIf(spaceUser == null, ErrorCode.NOT_FOUND_ERROR, "空间用户不存在");
+
+        return SpaceUserTypeEnum.getEnumByRole(spaceUser.getSpaceRole());
     }
 }
 

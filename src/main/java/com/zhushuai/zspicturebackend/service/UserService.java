@@ -118,4 +118,12 @@ public interface UserService extends IService<User> {
      */
     List<UserVO> listUserVO(List<Long> userList);
 
+
+    /**
+     * 将用户信息存储到redis
+     * @param user
+     * @param request
+     */
+    void storeUserLoginState(User user, HttpServletRequest request);
+
 }

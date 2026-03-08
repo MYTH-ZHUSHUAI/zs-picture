@@ -45,6 +45,13 @@ public class SpaceController {
     }
 
 
+    /**
+     * 修改空间
+     *
+     * @param spaceEditReq
+     * @param request
+     * @return
+     */
     @Operation(summary = "修改空间")
     @PostMapping("/edit")
     public BaseResponse<SpaceVO> spaceList(@RequestBody SpaceEditReq spaceEditReq,
@@ -104,6 +111,7 @@ public class SpaceController {
      * @return
      */
     @PostMapping("/delete")
+    @Operation(summary = "删除空间")
     public BaseResponse<Integer> deleteSpace(Long id,
                                              HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);

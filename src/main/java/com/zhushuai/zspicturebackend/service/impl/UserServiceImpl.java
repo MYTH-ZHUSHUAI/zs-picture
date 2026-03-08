@@ -3,6 +3,7 @@ package com.zhushuai.zspicturebackend.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhushuai.zspicturebackend.constant.RedisConstant;
 import com.zhushuai.zspicturebackend.constant.UserConstant;
 import com.zhushuai.zspicturebackend.exception.BusinessException;
 import com.zhushuai.zspicturebackend.exception.ErrorCode;
@@ -18,12 +19,16 @@ import com.zhushuai.zspicturebackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +39,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 用户注册
@@ -121,10 +130,75 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
 
 
-        // 4. 保存用户的登录状态
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        // 4. 将用户信息存储到 Redis
+        storeUserLoginState(user, request);
+
 
         return this.getLoginUserVO(user);
+    }
+
+    /**
+     * 将用户登录状态存储到 Redis
+     *
+     * @param user    用户对象
+     * @param request HTTP 请求
+     */
+    @Override
+    public void storeUserLoginState(User user, HttpServletRequest request) {
+        // 存储到 Redis
+        ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+        String redisKey = RedisConstant.getUserLoginKey(user.getId());
+        operations.set(redisKey, user, RedisConstant.SESSION_EXPIRE_TIME, TimeUnit.SECONDS);
+
+        // 同时存储到 Session（兼容旧逻辑）
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+
+        log.info("用户登录成功，已存储到 Redis: {}", redisKey);
+    }
+
+    /**
+     * 从 Redis中获取用户信息
+     *
+     * @param request HTTP 请求
+     * @return 用户对象
+     */
+    private User getUserFromRedis(HttpServletRequest request) {
+        try {
+            // 从 Session 中获取用户 ID（用于构建 Redis Key）
+            User sessionUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+            if (sessionUser != null && sessionUser.getId() != null) {
+                String redisKey = RedisConstant.getUserLoginKey(sessionUser.getId());
+                ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+                Object userObject = operations.get(redisKey);
+
+                if (userObject instanceof User) {
+                    log.debug("从 Redis 中获取到用户信息: {}", redisKey);
+                    return (User) userObject;
+                }
+            }
+        } catch (Exception e) {
+            log.error("从 Redis 获取用户信息失败", e);
+        }
+
+        return null;
+    }
+
+    /**
+     * 从 Redis中移除用户登录状态
+     *
+     * @param request HTTP 请求
+     */
+    private void removeUserFromRedis(HttpServletRequest request) {
+        try {
+            User currentUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+            if (currentUser != null && currentUser.getId() != null) {
+                String redisKey = RedisConstant.getUserLoginKey(currentUser.getId());
+                redisTemplate.delete(redisKey);
+                log.info("用户退出登录，已从 Redis 移除：{}", redisKey);
+            }
+        } catch (Exception e) {
+            log.error("从 Redis 移除用户登录状态失败", e);
+        }
     }
 
     /**
@@ -186,8 +260,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
+        // 从 Redis中获取当前登录用户
+        User currentUser = getUserFromRedis(request);
+
+        if (currentUser != null && currentUser.getId() != null) {
+            return currentUser;
+        }
+
+
         // 判断是否登录
-        User currentUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        currentUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -209,6 +291,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
+        // 从 Redis 中移除登录状态
+        removeUserFromRedis(request);
+
         // 判断是否登录
         User currentUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         if (currentUser == null || currentUser.getId() == null) {

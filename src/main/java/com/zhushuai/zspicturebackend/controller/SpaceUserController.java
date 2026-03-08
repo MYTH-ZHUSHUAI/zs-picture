@@ -1,6 +1,8 @@
 package com.zhushuai.zspicturebackend.controller;
 
 
+import com.zhushuai.zspicturebackend.annotation.AuthCheck;
+import com.zhushuai.zspicturebackend.annotation.SpaceAuthCheck;
 import com.zhushuai.zspicturebackend.common.BaseResponse;
 import com.zhushuai.zspicturebackend.common.ResultUtils;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserAddReq;
@@ -8,6 +10,7 @@ import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserDeleteReq;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserEditReq;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserQueryReq;
 import com.zhushuai.zspicturebackend.model.entity.User;
+import com.zhushuai.zspicturebackend.model.enums.SpaceUserTypeEnum;
 import com.zhushuai.zspicturebackend.model.vo.SpaceUserVO;
 import com.zhushuai.zspicturebackend.model.vo.UserVO;
 import com.zhushuai.zspicturebackend.service.SpaceUserService;
@@ -31,6 +34,7 @@ public class SpaceUserController {
 
     @PostMapping("/add")
     @Operation(summary = "添加空间用户")
+    @SpaceAuthCheck(mustRole = SpaceUserTypeEnum.ADMIN)
     public BaseResponse<SpaceUserVO> spaceUserAdd(@RequestBody SpaceUserAddReq spaceUserAddReq,
                                                   HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -47,6 +51,7 @@ public class SpaceUserController {
      */
     @PostMapping("/listuser")
     @Operation(summary = "获取空间用户列表")
+    @SpaceAuthCheck(mustRole = SpaceUserTypeEnum.VIEWER)
     public BaseResponse<List<UserVO>> spaceUserList(@RequestBody SpaceUserQueryReq SpaceUserQueryReq,
                                                     HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -64,6 +69,7 @@ public class SpaceUserController {
      */
     @DeleteMapping("/delete")
     @Operation(summary = "删除空间用户")
+    @SpaceAuthCheck(mustRole = SpaceUserTypeEnum.ADMIN)
     public BaseResponse<Boolean> spaceUserDelete(@RequestBody SpaceUserDeleteReq spaceUserDeleteReq,
                                                  HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -73,10 +79,11 @@ public class SpaceUserController {
 
 
     /**
-     * 编辑空间用户
+     * 编辑空间用户权限
      */
     @PostMapping("/edit")
     @Operation(summary = "编辑空间用户")
+    @SpaceAuthCheck(mustRole = SpaceUserTypeEnum.ADMIN)
     public BaseResponse<SpaceUserVO> spaceUserEdit(@RequestBody SpaceUserEditReq spaceUserEditReq,
                                                    HttpServletRequest request) {
 

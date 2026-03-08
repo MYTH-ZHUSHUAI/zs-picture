@@ -1,7 +1,5 @@
 package com.zhushuai.zspicturebackend.service.impl;
 
-import com.aliyun.oss.model.SortOrder;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,12 +10,10 @@ import com.zhushuai.zspicturebackend.model.dto.space.SpaceAddReq;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceEditReq;
 import com.zhushuai.zspicturebackend.model.dto.space.SpaceQueryReq;
 import com.zhushuai.zspicturebackend.model.dto.spaceuser.SpaceUserAddReq;
-import com.zhushuai.zspicturebackend.model.entity.Picture;
 import com.zhushuai.zspicturebackend.model.entity.Space;
 import com.zhushuai.zspicturebackend.model.entity.User;
 import com.zhushuai.zspicturebackend.model.enums.SpaceParametersEnum;
-import com.zhushuai.zspicturebackend.model.enums.SpaceUserEnum;
-import com.zhushuai.zspicturebackend.model.vo.PictureVO;
+import com.zhushuai.zspicturebackend.model.enums.SpaceUserTypeEnum;
 import com.zhushuai.zspicturebackend.model.vo.SpaceUserVO;
 import com.zhushuai.zspicturebackend.model.vo.SpaceVO;
 import com.zhushuai.zspicturebackend.service.SpaceService;
@@ -26,12 +22,9 @@ import com.zhushuai.zspicturebackend.service.SpaceUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +84,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             SpaceUserAddReq spaceUserAddReq = new SpaceUserAddReq();
             spaceUserAddReq.setSpaceId(space.getId());
             spaceUserAddReq.setUserId(user.getId());
-            spaceUserAddReq.setSpaceRole(SpaceUserEnum.ADMIN.getValue());
+            spaceUserAddReq.setSpaceRole(SpaceUserTypeEnum.ADMIN.getValue());
             SpaceUserVO spaceUserVO = spaceUserService.addSpaceUser(spaceUserAddReq);
 
 
