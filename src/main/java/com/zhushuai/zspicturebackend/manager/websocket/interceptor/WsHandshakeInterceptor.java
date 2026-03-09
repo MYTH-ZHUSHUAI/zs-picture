@@ -1,4 +1,4 @@
-package com.zhushuai.zspicturebackend.interceptor;
+package com.zhushuai.zspicturebackend.manager.websocket.interceptor;
 
 
 import cn.hutool.core.util.ObjUtil;
@@ -90,7 +90,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
 
         attributes.put("pictureId", pictureId);
         attributes.put("spaceId", spaceId);
-        attributes.put("loginUser", loginUser);
+        attributes.put("user", loginUser);
 
         return true;
     }

@@ -134,8 +134,4 @@ public class UserPicture {
      */
     private String watermarkedThumbnailUrl;
 
-    /**
-     * 原图 URL（原始格式）
-     */
-    private String originalUrl;
 }

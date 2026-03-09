@@ -5,13 +5,14 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.zhushuai.zspicturebackend.model.dto.message.PictureEditRequestMessage;
-import com.zhushuai.zspicturebackend.model.dto.message.PictureEditResponseMessage;
+import com.zhushuai.zspicturebackend.manager.websocket.message.PictureEditRequestMessage;
+import com.zhushuai.zspicturebackend.manager.websocket.message.PictureEditResponseMessage;
 import com.zhushuai.zspicturebackend.model.entity.User;
-import com.zhushuai.zspicturebackend.model.enums.PictureEditActionEnum;
-import com.zhushuai.zspicturebackend.model.enums.PictureEditMessageTypeEnum;
+import com.zhushuai.zspicturebackend.manager.websocket.enums.PictureEditActionEnum;
+import com.zhushuai.zspicturebackend.manager.websocket.enums.PictureEditMessageTypeEnum;
 import com.zhushuai.zspicturebackend.service.UserService;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -22,10 +23,14 @@ import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 @Component
+@Slf4j
 public class PictureEditHandler extends TextWebSocketHandler {
 
+    @Resource
+    private ExecutorService wsSendExecutor;
 
     @Resource
     private UserService userService;
@@ -73,7 +78,7 @@ public class PictureEditHandler extends TextWebSocketHandler {
         // 得到属性
         Map<String, Object> attributes = session.getAttributes();
         Long pictureId = (Long) attributes.get("pictureId");
-        User user = (User) attributes.get("loginUser");
+        User user = (User) attributes.get("user");
 
         // 发送退出编辑的动作
         handleExitEditMessage(null, session, pictureId, user);
@@ -260,15 +265,24 @@ public class PictureEditHandler extends TextWebSocketHandler {
 
             // 序列化为 JSON 字符串
             String message = objectMapper.writeValueAsString(pictureEditResponseMessage);
+
             TextMessage textMessage = new TextMessage(message);
             for (WebSocketSession session : sessionSet) {
                 // 排除掉的 session 不发送
                 if (excludeSession != null && excludeSession.equals(session)) {
                     continue;
                 }
-                if (session.isOpen()) {
-                    session.sendMessage(textMessage);
-                }
+
+                // 异步发送消息
+                wsSendExecutor.execute(() -> {
+                    try {
+                        if (session.isOpen()) {
+                            session.sendMessage(textMessage);
+                        }
+                    } catch (Exception e) {
+                        log.error("发送消息失败", e);
+                    }
+                });
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.zhushuai.zspicturebackend.model.enums;
+package com.zhushuai.zspicturebackend.manager.websocket.enums;
 
 import lombok.Getter;
 

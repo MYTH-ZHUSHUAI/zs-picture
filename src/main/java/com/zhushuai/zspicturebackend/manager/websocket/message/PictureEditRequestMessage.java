@@ -1,4 +1,4 @@
-package com.zhushuai.zspicturebackend.model.dto.message;
+package com.zhushuai.zspicturebackend.manager.websocket.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

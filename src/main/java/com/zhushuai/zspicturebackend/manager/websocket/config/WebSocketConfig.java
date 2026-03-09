@@ -1,6 +1,6 @@
-package com.zhushuai.zspicturebackend.config;
+package com.zhushuai.zspicturebackend.manager.websocket.config;
 
-import com.zhushuai.zspicturebackend.interceptor.WsHandshakeInterceptor;
+import com.zhushuai.zspicturebackend.manager.websocket.interceptor.WsHandshakeInterceptor;
 import com.zhushuai.zspicturebackend.manager.websocket.PictureEditHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
