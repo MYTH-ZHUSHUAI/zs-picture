@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * @author zhushuai
+ */
 @Component
 @Slf4j
 public class PictureEditHandler extends TextWebSocketHandler {
@@ -126,15 +129,11 @@ public class PictureEditHandler extends TextWebSocketHandler {
         User user = (User) attributes.get("user");
         Long pictureId = (Long) attributes.get("pictureId");
 
-        // 将请求发送给 disruptor
+        // 将请求发送给 disruptor，发送完后 websocket 线程被释放
         pictureEditEventProducer.publishEvent(pictureEditRequestMessage,
                 session,
                 user,
                 pictureId);
-
-        // websocket线程被释放
-        return;
-
     }
 
     /**

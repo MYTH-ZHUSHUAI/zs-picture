@@ -19,6 +19,7 @@ public enum SpaceUserTypeEnum {
     private final int value;
 
 
+
     SpaceUserTypeEnum(String role, int value) {
         this.role = role;
         this.value = value;

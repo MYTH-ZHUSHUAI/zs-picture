@@ -11,6 +11,9 @@ import org.springframework.web.socket.WebSocketSession;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+/**
+ * @author zhushuai
+ */
 @Component
 @Slf4j
 public class PictureEditEventProducer {

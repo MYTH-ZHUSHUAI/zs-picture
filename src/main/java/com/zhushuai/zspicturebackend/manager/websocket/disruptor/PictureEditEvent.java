@@ -8,6 +8,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 /**
  * 图片处理事件，包含
+ * @author zhushuai
  */
 @Data
 public class PictureEditEvent {
