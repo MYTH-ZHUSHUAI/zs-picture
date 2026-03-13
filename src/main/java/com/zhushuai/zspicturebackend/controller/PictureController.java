@@ -146,9 +146,9 @@ public class PictureController {
         return ResultUtils.success(pictureVO);
     }
 
-    @PostMapping(value = "/upload/colod")
-    @Operation(summary = "根据颜色查找图片", description = "将图片上传到用户的私有空间，支持公开/私密设置")
-    public BaseResponse<Page<PictureVO>> uploadPictureToUserSpace(String color,
+    @PostMapping(value = "/list/color")
+    @Operation(summary = "根据颜色查找图片", description = "根据主色调筛选图片列表")
+    public BaseResponse<Page<PictureVO>> getPictureListByColor(@RequestParam String color,
                                                                   HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
 

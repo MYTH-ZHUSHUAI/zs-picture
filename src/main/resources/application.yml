@@ -12,19 +12,19 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  # 数据库配置
+  # 数据库配置（敏感信息从 application-local.yml 或环境变量读取）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/zs_picture
-    username: root
-    password: 1234567890
-  # Redis 配置
+    url: ${DB_URL:jdbc:mysql://localhost:3306/zs_picture}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  # Redis 配置（敏感信息从 application-local.yml 或环境变量读取）
   redis:
-    database: 0
-    host: 127.0.0.1
-    port: 6379
-    timeout: 5000
-    password: 1234567890
+    database: ${REDIS_DATABASE:0}
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+    timeout: ${REDIS_TIMEOUT:5000}
+    password: ${REDIS_PASSWORD:}
   # Session 配置
   session:
     store-type: redis
@@ -34,35 +34,6 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
-  # 空间图片分表
-  shardingsphere:
-    datasource:
-      names: yu_picture
-      yu_picture:
-        type: com.zaxxer.hikari.HikariDataSource
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/yu_picture
-        username: root
-        password: 123456
-    rules:
-      sharding:
-        tables:
-          picture:
-            actual-data-nodes: yu_picture.picture # 动态分表
-            table-strategy:
-              standard:
-                sharding-column: spaceId
-                sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
-        sharding-algorithms:
-          picture_sharding_algorithm:
-            type: CLASS_BASED
-            props:
-              strategy: standard
-              algorithmClassName: com.yupi.yupicturebackend.manager.sharding.PictureShardingAlgorithm
-    props:
-      sql-show: true
-
-
 mybatis-plus:
   configuration:
     # MyBatis 配置
@@ -90,15 +61,15 @@ springdoc:
     - group: default
       paths-to-match: '/**'
       packages-to-scan: com.zhushuai.zspicturebackend.controller
-## 对象存储配置（需要从腾讯云获取）
+## 对象存储配置（敏感信息从 application-local.yml 或环境变量读取）
 cos:
   client:
-    host: xxx
-    secretId: xxx
-    secretKey: xxx
-    region: xxx  # 例如：ap-beijing
-    bucket: xxx
-    ciHost: https://ci.${cos.client.region}.myqcloud.com  # CI 服务域名
+    host: ${COS_HOST:}
+    secretId: ${COS_SECRET_ID:}
+    secretKey: ${COS_SECRET_KEY:}
+    region: ${COS_REGION:ap-beijing}
+    bucket: ${COS_BUCKET:}
+    ciHost: https://ci.${cos.client.region}.myqcloud.com
 
 ## 图片处理配置
 picture:
