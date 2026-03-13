@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 图片上传管理器
+ * @author zhushuai
  */
 @Component
 @Slf4j

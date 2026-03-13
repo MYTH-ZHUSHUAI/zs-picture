@@ -9,6 +9,9 @@ server:
 spring:
   application:
     name: zs-picture-backend
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -77,14 +80,16 @@ mybatis-plus:
 # 接口文档配置
 knife4j:
   enable: true
-  openapi:
-    title: 接口文档
-    version: 1.0
-    group:
-      default:
-        api-rule: package
-        api-rule-resources:
-          - com.zhushuai.zspicturebackend.controller
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  group-configs:
+    - group: default
+      paths-to-match: '/**'
+      packages-to-scan: com.zhushuai.zspicturebackend.controller
 ## 对象存储配置（需要从腾讯云获取）
 cos:
   client:

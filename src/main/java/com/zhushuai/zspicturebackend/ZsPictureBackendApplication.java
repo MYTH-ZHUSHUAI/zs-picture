@@ -9,7 +9,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @MapperScan("com.zhushuai.zspicturebackend.mapper")
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class ZsPictureBackendApplication {
-
+    
     public static void main(String[] args) {
         SpringApplication.run(ZsPictureBackendApplication.class, args);
     }

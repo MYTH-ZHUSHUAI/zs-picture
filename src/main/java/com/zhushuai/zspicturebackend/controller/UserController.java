@@ -24,6 +24,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * @author zhushuai
+ */
 @RestController
 @RequestMapping("/user")
 public class UserController {

@@ -23,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -266,7 +265,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (currentUser != null && currentUser.getId() != null) {
             return currentUser;
         }
-
 
         // 判断是否登录
         currentUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);

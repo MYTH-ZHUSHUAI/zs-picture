@@ -3,12 +3,12 @@ package com.zhushuai.zspicturebackend.manager.websocket.disruptor;
 
 import cn.hutool.json.JSONUtil;
 import com.lmax.disruptor.WorkHandler;
-import com.zhushuai.zspicturebackend.manager.websocket.PictureEditHandler;
 import com.zhushuai.zspicturebackend.manager.websocket.enums.PictureEditActionEnum;
 import com.zhushuai.zspicturebackend.manager.websocket.enums.PictureEditMessageTypeEnum;
 import com.zhushuai.zspicturebackend.manager.websocket.message.PictureEditRequestMessage;
 import com.zhushuai.zspicturebackend.manager.websocket.message.PictureEditResponseMessage;
 import com.zhushuai.zspicturebackend.model.entity.User;
+import com.zhushuai.zspicturebackend.service.PictureEditService;
 import com.zhushuai.zspicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ import javax.annotation.Resource;
 public class PictureEditEventWorkHandler implements WorkHandler<PictureEditEvent> {
 
     @Resource
-    private PictureEditHandler pictureEditHandler;
+    private PictureEditService pictureEditService;
 
     @Resource
     private UserService userService;
@@ -51,32 +51,44 @@ public class PictureEditEventWorkHandler implements WorkHandler<PictureEditEvent
         // 调用对应消息的处理方法
         switch (type) {
             case "ENTER_EDIT":
-                pictureEditHandler.handleEnterEditMessage(pictureEditRequestMessage,
+                boolean enteredEdit = pictureEditService.handleEnterEditMessage(pictureEditRequestMessage,
                         session,
                         pictureId,
                         user);
+                if (enteredEdit) {
+                    // 发送进入编辑成功的消息
+                    PictureEditResponseMessage responseMessage = pictureEditService.buildEnterEditResponse(user);
+                    session.sendMessage(new TextMessage(JSONUtil.toJsonStr(responseMessage)));
+                }
                 break;
             case "EXIT_EDIT":
-                pictureEditHandler.handleExitEditMessage(pictureEditRequestMessage,
+                pictureEditService.handleExitEditMessage(pictureEditRequestMessage,
                         session,
                         pictureId,
                         user);
+                // 发送退出编辑的消息
+                PictureEditResponseMessage exitMessage = pictureEditService.buildExitEditResponse(user);
+                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(exitMessage)));
                 break;
             case "EDIT_ACTION":
-                pictureEditHandler.handleEditActionMessage(pictureEditRequestMessage,
+                boolean actionPerformed = pictureEditService.handleEditActionMessage(pictureEditRequestMessage,
                         session,
                         pictureId,
                         user);
+                if (actionPerformed) {
+                    PictureEditResponseMessage actionMessage = pictureEditService.buildEditActionResponse(type, editAction, user);
+                    session.sendMessage(new TextMessage(JSONUtil.toJsonStr(actionMessage)));
+                }
                 break;
             default:
                 // 发送错误的消息类型
-                PictureEditResponseMessage pictureEditResponseMessage = new PictureEditResponseMessage();
+                PictureEditResponseMessage errorMessage = new PictureEditResponseMessage();
 
-                pictureEditResponseMessage.setType(PictureEditMessageTypeEnum.ERROR.getValue());
-                pictureEditResponseMessage.setMessage("消息类型错误");
-                pictureEditResponseMessage.setUser(userService.getUserVO(user));
+                errorMessage.setType(PictureEditMessageTypeEnum.ERROR.getValue());
+                errorMessage.setMessage("消息类型错误");
+                errorMessage.setUser(userService.getUserVO(user));
 
-                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(pictureEditResponseMessage)));
+                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(errorMessage)));
         }
     }
 }
